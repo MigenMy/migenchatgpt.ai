@@ -7,7 +7,7 @@ bot = telebot.TeleBot("6137705667:AAFk0Jvmhfxf2s8xGjEAdzEAFfk2UlvKIek")
 @bot.message_handler(commands=['start'])
 def start_handler(message):
     bot.reply_to(message, """
-Привет меня создал компания Migen-AI(Создател Байтур). Я могу быть медленным и вот поэтому подождите я не такой быстрый.(Я использую ChatGPT 3.5 TURBO)
+Привет меня создал компания Migen-AI(Создател Migen). Я могу быть медленным и вот поэтому подождите я не такой быстрый.(Я использую ChatGPT 3.5 TURBO)
 """)
 
 @bot.message_handler(func=lambda message: True)
