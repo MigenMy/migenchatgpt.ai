@@ -2,7 +2,7 @@ import g4f
 import telebot
 
 # Replace with your Telegram bot token
-bot = telebot.TeleBot("6137705667:AAFk0Jvmhfxf2s8xGjEAdzEAFfk2UlvKIek")
+bot = telebot.TeleBot("Token")
 
 @bot.message_handler(commands=['start'])
 def start_handler(message):
