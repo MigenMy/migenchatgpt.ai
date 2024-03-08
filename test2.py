@@ -11,74 +11,68 @@ index_html = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beautiful Chat</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-okaidia.min.css">
     <style>
         body {
-            background-color: #222;
-            color: #eee;
+            background-color: #212529; /* Тёмный фон */
+            color: #fff; /* Белый текст */
             font-family: Arial, sans-serif;
+            padding-bottom: 100px;
         }
 
         .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            max-width: 800px;
+            margin: auto;
             padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            background-color: #343a40; /* Цвет контейнера */
+            margin-bottom: 50px;
         }
 
         #chat-box {
-            flex: 1;
+            max-height: 600px; /* Увеличение высоты чата */
             overflow-y: auto;
+            margin-bottom: 20px;
             padding: 20px;
             border-radius: 10px;
-            background-color: #333;
+            background-color: #454d55; /* Цвет фона чата */
         }
 
         .message {
             margin-bottom: 20px;
             padding: 15px;
             border-radius: 10px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar, .bot-avatar {
-            width: 30px; /* Reduced size */
-            height: 30px; /* Reduced size */
-            border-radius: 50%;
-            background-color: #4CAF50; /* Green for user, change accordingly */
-            margin-right: 10px;
-        }
-
-        .bot-avatar {
-            background-color: #8e44ad; /* Purple for bot, change accordingly */
+            font-size: 16px;
+            overflow-wrap: break-word;
         }
 
         .user-message {
-            color: white;
-            align-self: flex-start;
+            /* Удаление границы и цвета фона */
         }
 
         .bot-message {
-            color: white;
-            align-self: flex-end;
+            /* Удаление границы и цвета фона */
         }
 
         #chat-form {
-            padding-top: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px; /* Добавлено для увеличения расстояния между формой и чатом */
         }
 
         #user-input {
             width: calc(100% - 100px);
             padding: 10px;
-            border: none;
+            border: 1px solid #ccc;
             border-radius: 20px;
-            margin-right: 10px;
             font-size: 16px;
+            color: #fff; /* Цвет текста в поле ввода */
+            background-color: #495057; /* Цвет фона поля ввода */
         }
 
         button[type="submit"] {
             padding: 10px 20px;
+            margin-left: 10px;
             background-color: #007bff;
             color: #fff;
             border: none;
@@ -88,21 +82,41 @@ index_html = """
         }
 
         .typing-dots {
+            display: none;
             color: #fff;
-            font-size: 18px;
+            font-size: 16px;
+        }
+
+        .code {
+            font-size: 14px;
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #007bff;
+            margin-right: 10px;
+            display: inline-block;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="avatar"></div>
+        <h1 style="display: inline-block; vertical-align: middle;">Beautiful Chat</h1>
         <div id="chat-box"></div>
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Enter your message...">
             <button type="submit">Send</button>
         </form>
+        <span class="typing-dots"></span>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#chat-form').submit(function (e) {
@@ -110,15 +124,17 @@ index_html = """
                 var userInput = $('#user-input').val().trim();
                 if (userInput === '') return;
 
-                $('#chat-box').append('<div class="message user-message"><div class="user-avatar"></div>' + userInput + '</div>');
+                var userMessageDiv = $('<div class="message user-message"></div>');
+                var userMessageText = $('<span></span>').html(userInput);
+                userMessageDiv.append(userMessageText);
+                $('#chat-box').append(userMessageDiv);
+
                 $('#user-input').val('');
 
-                // Show typing dots
-                var typingDots = $('<span class="typing-dots">...</span>');
-                $('#chat-box').append(typingDots);
+                $('.typing-dots').css('display', 'inline');
 
-                // Animate typing dots
                 var animationInterval = setInterval(function() {
+                    var typingDots = $('.typing-dots');
                     typingDots.text(typingDots.text() === '...' ? '..' : '...');
                 }, 500);
 
@@ -127,10 +143,14 @@ index_html = """
                     type: 'POST',
                     data: {user_input: userInput},
                     success: function (data) {
-                        clearInterval(animationInterval); // Stop animation
-                        typingDots.remove(); // Remove typing dots
+                        clearInterval(animationInterval);
+                        $('.typing-dots').css('display', 'none');
                         var botResponse = data.conversation[data.conversation.length - 1].content;
-                        $('#chat-box').append('<div class="message bot-message"><div class="bot-avatar"></div>' + botResponse + '</div>');
+                        var botMessageDiv = $('<div class="message bot-message"></div>');
+                        var botMessageText = $('<span class="code"></span>').html(botResponse);
+                        botMessageDiv.append(botMessageText);
+                        $('#chat-box').append(botMessageDiv);
+                        Prism.highlightAll(); // Подсветка кода
                         $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
                     }
                 });
@@ -157,10 +177,13 @@ def chat():
     )
 
     bot_response = ''.join(response)
+    bot_response_with_br = bot_response.replace('\n', '<br>')
+    bot_response_cleaned = bot_response_with_br.replace('**', '')
 
-    conversation.append({'role': 'bot', 'content': bot_response})
+    conversation.append({'role': 'bot', 'content': bot_response_cleaned})
 
     return jsonify({'conversation': conversation})
 
 if __name__ == '__main__':
     app.run(debug=True)
+
